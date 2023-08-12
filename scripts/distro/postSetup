@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+lolcat ./distroInstallerSplash
+echo "Welcome to LugOS..." # insert content here
+
+# Your host distro will be installed as a strata by design, so one of the 2 lines below will error out; this is undesirable behaviour.
+  
+if [ "$(command -v apt)" ] && [ -f "/etc/debian_version" ]; then
+    # if Ubuntu or Debian, fetch only the Arch stratum... Ubuntu also has /etc/debian_version
+    sudo brl fetch arch 2>/dev/null
+elif [ "$(command -v pacman)" ] && [ -f "/etc/arch-release" ]; then
+    sudo brl fetch ubuntu 2>/dev/null # If Arch, fetch only the Ubuntu stratum.
+fi
+
+sudo sed 's/timeout = 30/timeout = 0/' /bedrock/etc/bedrock.conf > /dev/null # set no bootloader timeout, don't complicate for users, and don't echo the output of sed
+
+# setup Gnome extensions, strata does not matter anymore; use Arch stuff...
+sudo pacman -S python-pipx python --needed --noconfirm
+
+pipx install gnome-extensions-cli 
+pipx runpip gnome-extensions-cli install pygobject
+
+# gnome-extensions-cli install  ext1
+# gext also works
+# gext install ext2
+# gext install ext3
