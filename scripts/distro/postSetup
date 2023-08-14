@@ -23,3 +23,31 @@ pipx runpip gnome-extensions-cli install pygobject
 # gext also works
 # gext install ext2
 # gext install ext3
+#!/bin/bash
+
+# Define an array of extension names
+extensions=(
+  AylursWidgets@Aylur
+  blur-my-shell@extensions.gnome-shell.freedesktop.org
+  burn-my-windows@dgutov.github.com
+  dash-to-dock@micxgx.gmail.com
+  extension-list@gnome-shell-extensions.gcampax.github.com
+  just-perfection@alexram1313.github.io
+  logo-menu@fabiomonari.it
+  pop-shell@system76.com
+  rounded-corners@mathieu.bidon.ca
+  spacebar@germanfr
+  top-bar-organizer@gnome-shell-extensions.gcampax.github.com
+  user-theme@gnome-shell-extensions.gcampax.github.com
+)
+
+# Iterate over the extensions array and fetch each extension
+for extension in "${extensions[@]}"; do
+  echo "Fetching extension: $extension"
+  gext fetch "$extension"
+done
+
+echo "Setting up the AUR helper.."
+../terminal/setup-yay 
+# add paru=yay=pacman thru (fish) shell aliases
+

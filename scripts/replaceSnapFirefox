@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Check if OS is Ubuntu
+if [[ "$(lsb_release -si)" != "Ubuntu" ]]; then
+    echo "This script is intended for Ubuntu only."
+    exit 1
+fi
+
+# Check if snaps are installed
+if command -v snap >/dev/null 2>&1; then
+    # Remove all snaps
+    sudo snap list --all | while read snapname _; do
+        sudo snap remove --purge "$snapname"
+    done
+
+    # Remove snapd
+    sudo apt purge -y snapd
+
+    echo "Snaps and snapd removed successfully."
+else
+    echo "Snaps and snapd are not installed."
+fi
+
+# Add Firefox repository
+sudo add-apt-repository -y ppa:mozillateam/firefox
+
+# Update and install Firefox
+sudo apt update
+sudo apt install -y firefox
+
+echo "Script executed successfully."
