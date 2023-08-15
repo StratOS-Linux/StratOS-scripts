@@ -8,46 +8,51 @@ if [ "$(command -v apt)" ] && [ -f "/etc/debian_version" ]; then
     # if Ubuntu or Debian, fetch only the Arch stratum... Ubuntu also has /etc/debian_version
     sudo brl fetch arch 2>/dev/null
 elif [ "$(command -v pacman)" ] && [ -f "/etc/arch-release" ]; then
-    sudo brl fetch ubuntu 2>/dev/null # If Arch, fetch only the Ubuntu stratum.
+    sudo brl fetch -r jammy -n ubuntu ubuntu 2>/dev/null # If Arch, fetch only the Ubuntu stratum.
+    # -m https://ubuntu-archive.mirror.net.in
 fi
 
-sudo sed 's/timeout = 30/timeout = 0/' /bedrock/etc/bedrock.conf > /dev/null # set no bootloader timeout, don't complicate for users, and don't echo the output of sed
+sudo sed 's/timeout = 30/timeout = 0/g' -i /bedrock/etc/bedrock.conf # set no bootloader timeout, don't complicate for users...
 
 # setup Gnome extensions, strata does not matter anymore; use Arch stuff...
 sudo pacman -S python-pipx python --needed --noconfirm
 
 pipx install gnome-extensions-cli 
 pipx runpip gnome-extensions-cli install pygobject
-
-# gnome-extensions-cli install  ext1
-# gext also works
-# gext install ext2
-# gext install ext3
-#!/bin/bash
+source ~/.bashrc # pipx adds .local/bin to PATH, so reload bash conf
 
 # Define an array of extension names
 extensions=(
-  AylursWidgets@Aylur
-  blur-my-shell@extensions.gnome-shell.freedesktop.org
-  burn-my-windows@dgutov.github.com
+  widgets@Aylur
+  blur-my-shell@aunetx
+  burn-my-windows@schneegans.github.com
   dash-to-dock@micxgx.gmail.com
-  extension-list@gnome-shell-extensions.gcampax.github.com
-  just-perfection@alexram1313.github.io
-  logo-menu@fabiomonari.it
-  pop-shell@system76.com
-  rounded-corners@mathieu.bidon.ca
-  spacebar@germanfr
-  top-bar-organizer@gnome-shell-extensions.gcampax.github.com
+  # extension-list@gnome-shell-extensions.gcampax.github.com
+  # just-perfection@alexram1313.github.io doesn't work
+  
+  # logo-menu@fabiomonari.it
+  logomenu@aryan_k
+  # pop-shell@system76.com
+  forge@jmmaranan.com
+  # rounded-corners@mathieu.bidon.ca
+  rounded-window-corners@yilozt.shell-extension.zip
+  space-bar@luchrioh
+  # top-bar-organizer@gnome-shell-extensions.gcampax.github.com
+  top-bar-organizer@julian.gse.jsts.xyz
   user-theme@gnome-shell-extensions.gcampax.github.com
 )
 
 # Iterate over the extensions array and fetch each extension
 for extension in "${extensions[@]}"; do
   echo "Fetching extension: $extension"
-  gext fetch "$extension"
+  gext install "$extension"
 done
 
 echo "Setting up the AUR helper.."
 ../terminal/setup-yay 
 # add paru=yay=pacman thru (fish) shell aliases
+yay -S gnome-shell-extension-extension-list 
 
+## TODO 
+# add neofetch-y stuff
+# echo >> themeInfo to ~/.config/gtk-3.0/settings.ini

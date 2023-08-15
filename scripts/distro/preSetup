@@ -1,12 +1,11 @@
 #!/usr/bin/env bash 
 # Ubuntu and Arch are highly compatible with Bedrock
-:'
+
 # Install lolcat using make (check if make/build-essential/base-devel is installed, if not, install it...) 
-sudo git clone https://github.com/jaseg/lolcat /opt/lolcat 
-cd lolcat 
-make 
-cd -
-' 
+# sudo git clone https://github.com/jaseg/lolcat /opt/lolcat 
+# cd lolcat 
+# make 
+# cd -
 
 if [ "$(command -v apt)" ] && [ -f "/etc/debian_version" ]; then
     if ! [ "$(command -v lolcat &>/dev/null)" ]; then
@@ -29,5 +28,5 @@ fi
 echo "Welcome to our distro, LugOS. This distro post-install script sets up our configuration....."
 
 cat ./distroInstallerSplash | lolcat # /opt/lolcat/lolcat 
-./install-bedrock-x86_64 --hijack # this will eventually create a /bedrock/etc/bedrock.conf
+sudo ./install-bedrock-x86_64 --hijack # this will eventually create a /bedrock/etc/bedrock.conf
 echo "Reboot the system at your convenience, then run the postSetup script."
