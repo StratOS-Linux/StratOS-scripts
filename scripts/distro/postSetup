@@ -17,6 +17,11 @@ sudo sed 's/timeout = 30/timeout = 0/g' -i /bedrock/etc/bedrock.conf # set no bo
 # setup Gnome extensions, strata does not matter anymore; use Arch stuff...
 sudo pacman -S python-pipx python --needed --noconfirm
 echo "export PATH=~/.local/bin:$PATH" >> ~/.bashrc
+echo "alias neofetch=\"neofetch --ascii_distro janus\"" >> ~/.bashrc
+echo "alias fetch-ubuntu=\" sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r mantic\"" >> ~/.bashrc
+echo "alias fetch-arch=\" sudo brl fetch arch\"" >> ~/.bashrc
+echo "alias apt=\"nala\"" >> ~/.bashrc
+echo "neofetch" >> ~/.bashrc # get LUG branding on startup
 pipx install gnome-extensions-cli 
 pipx runpip gnome-extensions-cli install pygobject
 export PATH=~/.local/bin:$PATH
