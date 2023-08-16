@@ -6,28 +6,28 @@ echo "Welcome to LugOS..." # insert content here
   
 if [ "$(command -v apt)" ] && [ -f "/etc/debian_version" ]; then
     # if Ubuntu or Debian, fetch only the Arch stratum... Ubuntu also has /etc/debian_version
-    sudo brl fetch arch 2>/dev/null
+    sudo brl fetch arch
 elif [ "$(command -v pacman)" ] && [ -f "/etc/arch-release" ]; then
-    sudo brl fetch -r jammy -n ubuntu ubuntu 2>/dev/null # If Arch, fetch only the Ubuntu stratum.
-    # -m https://ubuntu-archive.mirror.net.in
+    # If Arch, fetch only the Ubuntu stratum.
+    sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r jammy 
 fi
 
 sudo sed 's/timeout = 30/timeout = 0/g' -i /bedrock/etc/bedrock.conf # set no bootloader timeout, don't complicate for users...
 
 # setup Gnome extensions, strata does not matter anymore; use Arch stuff...
 sudo pacman -S python-pipx python --needed --noconfirm
-
+echo "export PATH=~/.local/bin:$PATH" >> ~/.bashrc
 pipx install gnome-extensions-cli 
 pipx runpip gnome-extensions-cli install pygobject
+export PATH=~/.local/bin:$PATH
 source ~/.bashrc # pipx adds .local/bin to PATH, so reload bash conf
-
+sudo apt install -y nala 
 # Define an array of extension names
 extensions=(
   widgets@Aylur
   blur-my-shell@aunetx
   burn-my-windows@schneegans.github.com
   dash-to-dock@micxgx.gmail.com
-  # extension-list@gnome-shell-extensions.gcampax.github.com
   # just-perfection@alexram1313.github.io doesn't work
   
   # logo-menu@fabiomonari.it
@@ -51,8 +51,10 @@ done
 echo "Setting up the AUR helper.."
 ../terminal/setup-yay 
 # add paru=yay=pacman thru (fish) shell aliases
-yay -S gnome-shell-extension-extension-list 
+yay -S sassc gnome-shell-extension-extension-list xorg-xrandr --noconfirm 
 
 ## TODO 
-# add neofetch-y stuff
+mkdir -p ~/.local/bin/
+cp ../neofetch/neofetch ~/.local/bin/
+
 # echo >> themeInfo to ~/.config/gtk-3.0/settings.ini
