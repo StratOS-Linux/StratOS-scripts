@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-lolcat ./distroInstallerSplash
+lolcat $(pwd)/distroInstallerSplash
 echo "Welcome to LugOS..." # insert content here
 
 # Your host distro will be installed as a strata by design, so one of the 2 lines below will error out; this is undesirable behaviour.
@@ -16,12 +16,6 @@ sudo sed 's/timeout = 30/timeout = 0/g' -i /bedrock/etc/bedrock.conf # set no bo
 
 # setup Gnome extensions, strata does not matter anymore; use Arch stuff...
 sudo pacman -S python-pipx python --needed --noconfirm
-echo "export PATH=~/.local/bin:$PATH" >> ~/.bashrc
-echo "alias neofetch=\"neofetch --ascii_distro janus\"" >> ~/.bashrc
-echo "alias fetch-ubuntu=\" sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r mantic\"" >> ~/.bashrc
-echo "alias fetch-arch=\" sudo brl fetch arch\"" >> ~/.bashrc
-echo "alias apt=\"nala\"" >> ~/.bashrc
-echo "neofetch" >> ~/.bashrc # get LUG branding on startup
 pipx install gnome-extensions-cli 
 pipx runpip gnome-extensions-cli install pygobject
 export PATH=~/.local/bin:$PATH
@@ -56,10 +50,14 @@ done
 echo "Setting up the AUR helper.."
 ../terminal/setup-yay 
 # add paru=yay=pacman thru (fish) shell aliases
-yay -S sassc gnome-shell-extension-extension-list xorg-xrandr --noconfirm 
+yay -S sassc gnome-shell-extension-extension-list xorg-xrandr --needed --noconfirm # neofetch not required
 
 ## TODO 
 mkdir -p ~/.local/bin/
-cp ../neofetch/neofetch ~/.local/bin/
+mkdir -p ~/.config/neofetch/
+ln -sf $(pwd)/../neofetch/neofetch ~/.local/bin/
+ln -sf $(pwd)/../neofetch/config.conf ~/.config/neofetch/
+ln -sf $(pwd)/../terminal/.bashrc ~/.lug-bashrc
+echo "[[ -f ~/.lug-bashrc ]] && source ~/.lug-bashrc " >> ~/.bashrc
 
 # echo >> themeInfo to ~/.config/gtk-3.0/settings.ini
