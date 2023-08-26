@@ -63,5 +63,6 @@ echo "[[ -f ~/.lug-bashrc ]] && source ~/.lug-bashrc " >> ~/.bashrc
 # Pentesting tools/packages
 echo "Installing penetration testing utilities...\n"
 yay -S nmap zenmap metasploit hashcat john wifite burpsuite wireshark-cli wireshark-qt social-engineering-toolkit ngrok aircrack-ng sqlite
-# Pyphisher's not on AUR
+# Pyphisher's not on AUR, installing it using Pipx
+pipx install pyphisher maxphisher # more feature-complete version by the same author
 # echo >> themeInfo to ~/.config/gtk-3.0/settings.ini
