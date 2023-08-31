@@ -6,22 +6,49 @@ echo "Welcome to LugOS...\n" # insert content here
   
 if [ "$(command -v apt)" ] && [ -f "/etc/debian_version" ]; then
     # if Ubuntu or Debian, fetch only the Arch stratum... Ubuntu also has /etc/debian_version
+<<<<<<< HEAD
     sudo apt install -y pipx
+||||||| parent of b295441 (Bedrock installer - yet to-be-added)
+=======
+    sudo apt install -y pipx nala
+>>>>>>> b295441 (Bedrock installer - yet to-be-added)
     sudo brl fetch arch
 elif [ "$(command -v pacman)" ] && [ -f "/etc/arch-release" ]; then
     # If Arch, fetch only the Ubuntu stratum.
+<<<<<<< HEAD
     sudo pacman -S python-pipx python --needed --noconfirm
     sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r mantic 
+||||||| parent of b295441 (Bedrock installer - yet to-be-added)
+    sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r jammy 
+=======
+    sudo pacman -S python-pipx --noconfirm
+    sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r mantic
+>>>>>>> b295441 (Bedrock installer - yet to-be-added)
 fi
 
 sudo sed 's/timeout = 30/timeout = 0/g' -i /bedrock/etc/bedrock.conf # set no bootloader timeout, don't complicate for users...
 
+<<<<<<< HEAD
 # setup Gnome extensions, strata does not matter anymore; use Arch stuff...
 pipx ensurepath # adds ~/.local/bin to PATH
 source ~/.bashrc
+||||||| parent of b295441 (Bedrock installer - yet to-be-added)
+# setup Gnome extensions, strata does not matter anymore; use Arch stuff...
+sudo pacman -S python-pipx python --needed --noconfirm
+=======
+pipx ensurepath
+source ~/.bashrc
+>>>>>>> b295441 (Bedrock installer - yet to-be-added)
 pipx install gnome-extensions-cli 
 pipx runpip gnome-extensions-cli install pygobject
+<<<<<<< HEAD
 sudo apt install -y nala 
+||||||| parent of b295441 (Bedrock installer - yet to-be-added)
+export PATH=~/.local/bin:$PATH
+source ~/.bashrc # pipx adds .local/bin to PATH, so reload bash conf
+sudo apt install -y nala 
+=======
+>>>>>>> b295441 (Bedrock installer - yet to-be-added)
 # Define an array of extension names
 extensions=(
   widgets@Aylur
@@ -35,7 +62,7 @@ extensions=(
   # pop-shell@system76.com
   forge@jmmaranan.com
   # rounded-corners@mathieu.bidon.ca
-  rounded-window-corners@yilozt.shell-extension.zip
+  # rounded-window-corners@yilozt.shell-extension.zip
   space-bar@luchrioh
   # top-bar-organizer@gnome-shell-extensions.gcampax.github.com
   top-bar-organizer@julian.gse.jsts.xyz
@@ -51,14 +78,28 @@ done
 echo "Setting up the AUR helper...\n"
 ../terminal/setup-yay 
 # add paru=yay=pacman thru (fish) shell aliases
-yay -S sassc gnome-shell-extension-extension-list xorg-xrandr --needed --noconfirm # neofetch not required
+yay -S starship sassc gnome-shell-extension-extension-list xorg-xrandr --needed --noconfirm # neofetch not required
+
+# Pentesting tools/packages
+echo "Installing penetration testing utilities... \n"
+yay -S nmap zenmap metasploit hashcat wifite john burpsuite wireshark-cli wireshark-qt social-engeneering-toolkit ngrok aircrack-ng sqlite
+# PyPhisher's not in the AUR, installing using pipx...
+pipx install pyphisher maxphisher # more feature-complete, made by the same author
+
+# This will not be used anymore, bedrock installer has fixed this issue...
+# curl -fsSL https://mirror.rackspace.com/archlinux/iso/2023.07.01/archlinux-bootstrap-x86_64.tar.gz > arch.tar.gz
+# sudo tar -xzf arch.tar.gz
+# sudo tar cf arch.tar root.x86_64/
+# sudo brl import arch arch.tar
 
 ## TODO 
 mkdir -p ~/.local/bin/
 mkdir -p ~/.config/neofetch/
+mkdir -p ~/.config/starship
 ln -sf $(pwd)/../neofetch/neofetch ~/.local/bin/
 ln -sf $(pwd)/../neofetch/config.conf ~/.config/neofetch/
 ln -sf $(pwd)/../terminal/.bashrc ~/.lug-bashrc
+ln -sf $(pwd)/../terminal/starship.toml ~/.config/starship
 echo "[[ -f ~/.lug-bashrc ]] && source ~/.lug-bashrc " >> ~/.bashrc
 
 # Pentesting tools/packages
