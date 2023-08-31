@@ -6,20 +6,21 @@ echo "Welcome to LugOS...\n" # insert content here
   
 if [ "$(command -v apt)" ] && [ -f "/etc/debian_version" ]; then
     # if Ubuntu or Debian, fetch only the Arch stratum... Ubuntu also has /etc/debian_version
+    sudo apt install -y pipx
     sudo brl fetch arch
 elif [ "$(command -v pacman)" ] && [ -f "/etc/arch-release" ]; then
     # If Arch, fetch only the Ubuntu stratum.
-    sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r jammy 
+    sudo pacman -S python-pipx python --needed --noconfirm
+    sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r mantic 
 fi
 
 sudo sed 's/timeout = 30/timeout = 0/g' -i /bedrock/etc/bedrock.conf # set no bootloader timeout, don't complicate for users...
 
 # setup Gnome extensions, strata does not matter anymore; use Arch stuff...
-sudo pacman -S python-pipx python --needed --noconfirm
+pipx ensurepath # adds ~/.local/bin to PATH
+source ~/.bashrc
 pipx install gnome-extensions-cli 
 pipx runpip gnome-extensions-cli install pygobject
-export PATH=~/.local/bin:$PATH
-source ~/.bashrc # pipx adds .local/bin to PATH, so reload bash conf
 sudo apt install -y nala 
 # Define an array of extension names
 extensions=(
@@ -66,3 +67,8 @@ yay -S nmap zenmap metasploit hashcat john wifite burpsuite wireshark-cli wiresh
 # Pyphisher's not on AUR, installing it using Pipx
 pipx install pyphisher maxphisher # more feature-complete version by the same author
 # echo >> themeInfo to ~/.config/gtk-3.0/settings.ini
+
+# curl -fsSL https://mirror.rackspace.com/archlinux/iso/2023.07.01/archlinux-bootstrap-x86_64.tar.gz > arch.tar.gz
+# sudo tar -xzf arch.tar.gz
+# sudo tar cf arch.tar root.x86_64/
+# sudo brl import arch arch.tar
