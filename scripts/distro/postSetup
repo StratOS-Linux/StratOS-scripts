@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 lolcat $(pwd)/distroInstallerSplash
-echo "Welcome to LugOS...\n" # insert content here
+echo "Welcome to LugOS..." # insert content here
 
 # Your host distro will be installed as a strata by design, so one of the 2 lines below will error out; this is undesirable behaviour.
   
@@ -21,18 +21,14 @@ fi
 sudo sed 's/timeout = 30/timeout = 0/g' -i /bedrock/etc/bedrock.conf # set no bootloader timeout, don't complicate for users...
 
 # setup Gnome extensions, strata does not matter anymore; use Arch stuff...
-pipx ensurepath # adds ~/.local/bin to PATH
+pipx ensurepath >/dev/null # adds ~/.local/bin to PATH
 source ~/.bashrc
 # setup Gnome extensions, strata does not matter anymore; use Arch stuff...
 sudo pacman -S python-pipx python --needed --noconfirm
-pipx ensurepath
-source ~/.bashrc
-pipx install gnome-extensions-cli 
-pipx runpip gnome-extensions-cli install pygobject
+pipx install gnome-extensions-cli  > /dev/null
+pipx runpip gnome-extensions-cli install pygobject > /dev/null
 sudo apt install -y nala 
 export PATH=~/.local/bin:$PATH
-source ~/.bashrc # pipx adds .local/bin to PATH, so reload bash conf
-sudo apt install -y nala 
 # Define an array of extension names
 extensions=(
   widgets@Aylur
@@ -56,18 +52,21 @@ extensions=(
 # Iterate over the extensions array and fetch each extension
 for extension in "${extensions[@]}"; do
   echo "Fetching extension: $extension"
-  gext install "$extension"
+  gext install "$extension" > /dev/null
   # gext enable "$extension"
 done
 
-echo "Setting up the AUR helper...\n"
-../terminal/setup-yay 
+echo "Setting up the AUR helper..."
+echo 
+../terminal/setup-yay  > /dev/null
 # add paru=yay=pacman thru (fish) shell aliases
 yay -S starship sassc gnome-shell-extension-extension-list xorg-xrandr --needed --noconfirm # neofetch not required
 
 # Pentesting tools/packages
-echo "Installing penetration testing utilities... \n"
-yay -S nmap zenmap metasploit hashcat wifite john burpsuite wireshark-cli wireshark-qt social-engeneering-toolkit ngrok aircrack-ng sqlite
+echo "Installing penetration testing utilities..."
+echo 
+yay -S nmap metasploit hashcat wifite john wireshark-cli wireshark-qt aircrack-ng sqlite --needed --noconfirm
+yay -S zenmap burpsuite social-engineer-toolkit ngrok --needed --noconfirm
 # PyPhisher's not in the AUR, installing using pipx...
 pipx install pyphisher maxphisher # more feature-complete, made by the same author
 
@@ -87,11 +86,6 @@ ln -sf $(pwd)/../terminal/.bashrc ~/.lug-bashrc
 ln -sf $(pwd)/../terminal/starship.toml ~/.config/starship
 echo "[[ -f ~/.lug-bashrc ]] && source ~/.lug-bashrc " >> ~/.bashrc
 
-# Pentesting tools/packages
-echo "Installing penetration testing utilities...\n"
-yay -S nmap zenmap metasploit hashcat john wifite burpsuite wireshark-cli wireshark-qt social-engineering-toolkit ngrok aircrack-ng sqlite
-# Pyphisher's not on AUR, installing it using Pipx
-pipx install pyphisher maxphisher # more feature-complete version by the same author
 # echo >> themeInfo to ~/.config/gtk-3.0/settings.ini
 
 mkdir -p /usr/share/grub/themes/

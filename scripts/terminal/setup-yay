@@ -1,7 +1,6 @@
 #!/usr/bin/bash
 sudo pacman -S base-devel git --needed --noconfirm
-git clone https://aur.archlinux.org/yay.git 
-cd yay
+git clone https://aur.archlinux.org/yay-bin.git 
+cd yay-bin
 makepkg -si --noconfirm
-sudo pacman -Rns go --noconfirm
-rm -rf yay
+rm -rf yay-bin
