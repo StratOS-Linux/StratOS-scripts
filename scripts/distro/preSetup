@@ -16,6 +16,8 @@ if [ "$(command -v apt)" ] && [ -f "/etc/debian_version" ]; then
   elif [ "$(command -v pacman)" ] && [ -f "/etc/arch-release" ]; then
     if ! [ "$(command -v lolcat &>/dev/null)" ]; then
         echo "lolcat is not installed. Attempting to install..."
+		# Refreshing the repos for Arch Linux GUI
+		sudo pacman -Sy 
         sudo pacman -S --noconfirm lolcat
     fi
 # else
