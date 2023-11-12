@@ -5,25 +5,21 @@ echo "Welcome to LugOS..." # insert content here
   
 if [ "$(command -v apt)" ] && [ -f "/etc/debian_version" ]; then
     # if Ubuntu or Debian, fetch only the Arch stratum... Ubuntu also has /etc/debian_version
-    sudo apt install -y pipx
-    sudo apt install -y pipx nala
+    # sudo apt install -y pipx
     sudo brl fetch arch
 elif [ "$(command -v pacman)" ] && [ -f "/etc/arch-release" ]; then
     # If Arch, fetch only the Ubuntu stratum.
-    sudo pacman -S python-pipx python --needed --noconfirm
     sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r mantic 
-    sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r jammy 
-    sudo pacman -S python-pipx --noconfirm
-    sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r mantic
+    # sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r jammy 
 fi
 
 sudo sed 's/timeout = 30/timeout = 0/g' -i /bedrock/etc/bedrock.conf # set no bootloader timeout, don't complicate for users...
 
 # setup Gnome extensions, strata does not matter anymore; use Arch stuff...
+sudo pacman -S python-pipx --needed --noconfirm
 pipx ensurepath >/dev/null # adds ~/.local/bin to PATH
 source ~/.bashrc
 # setup Gnome extensions, strata does not matter anymore; use Arch stuff...
-sudo pacman -S python-pipx python --needed --noconfirm
 pipx install gnome-extensions-cli  > /dev/null
 pipx runpip gnome-extensions-cli install pygobject > /dev/null
 sudo apt install -y nala 
@@ -77,13 +73,16 @@ pipx install maxphisher > /dev/null # more feature-complete, made by the same au
 # sudo brl import arch arch.tar
 
 ## TODO 
+git clone https://github.com/lugvitc/lugfetch.git --depth 1
+cd lugfetch && sudo make install && lugfetch >/dev/null && cd -
 mkdir -p ~/.local/bin/
 mkdir -p ~/.config/neofetch/
-mkdir -p ~/.config/starship
+mkdir -p ~/.config/starship/
 ln -sf $(pwd)/../neofetch/neofetch ~/.local/bin/
 ln -sf $(pwd)/../neofetch/config.conf ~/.config/neofetch/
 ln -sf $(pwd)/../terminal/.bashrc ~/.lug-bashrc
 ln -sf $(pwd)/../terminal/starship.toml ~/.config/starship
+sudo ln -sf $(pwd)/../terminal/lugpkg /usr/local/bin/
 echo "[[ -f ~/.lug-bashrc ]] && source ~/.lug-bashrc " >> ~/.bashrc
 
 # echo >> themeInfo to ~/.config/gtk-3.0/settings.ini
@@ -95,7 +94,7 @@ dconf write /org/gnome/desktop/interface/gtk-theme "'Gruvbox-Dark-B'"
 dconf write /org/gnome/desktop/interface/icon-theme "'Gruvbox-Plus-Dark'"
 gsettings set org.gnome.shell.extensions.user-theme name "Gruvbox-Dark-B"
 # Cursor Theme
-yay -S bibata-cursor-theme
+yay -S bibata-cursor-theme  --needed
 gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Classic'
 # Fixes gtk-4.0 theming and adds Jetbrains Mono font
 yay -S  ttf-jetbrains-mono-nerd --noconfirm --needed
@@ -128,6 +127,14 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 dconf write /org/gnome/shell/extensions/burn-my-windows/tv-glitch-enable-effect true
 dconf write /org/gnome/shell/extensions/burn-my-windows/fire-enable-effect false
 dconf write /org/gnome/shell/extensions/burn-my-windows/tv-glitch-animation-time 650
-
+dconf write /org/gnome/desktop/background/picture-uri-dark "'file://$HOME/LUG_custom_distro/LUG-wallpaper-d.png'"
+dconf write /org/gnome/desktop/background/picture-uri "'file://$HOME/LUG_custom_distro/LUG-wallpaper-l.png'"
 dconf write /org/gnome/shell/extensions/user-theme/enabled true
+gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrainsMonoNL Nerd Font Mono 14'
+
+
+# MISC CLEANUP
 yay -S libadwaita-without-adwaita-git --noconfirm --needed
+yay -Rns $(yay -Qtdq) --noconfirm
+
+git clone https://github.com/lugvitc/LUGOS-nvim-config.git ~/.config/nvim
