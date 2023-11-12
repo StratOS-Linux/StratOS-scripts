@@ -13,5 +13,6 @@ alias fetch-arch="sudo brl fetch arch"
 alias fetch-ubuntu=" sudo brl fetch ubuntu -m http://repo.huaweicloud.com/ubuntu -r mantic"
 alias apt="nala"
 source <(starship init bash --print-full-init)
-neofetch # get LUG branding on startup
+[[ $(command -v lugfetch) ]] && lugfetch
+# neofetch # get LUG branding on startup
 PS1='[\u@\h \W]\$ ' # this works ONLY on bash, use Starship instead.

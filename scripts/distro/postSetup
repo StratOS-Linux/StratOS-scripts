@@ -73,13 +73,16 @@ pipx install maxphisher > /dev/null # more feature-complete, made by the same au
 # sudo brl import arch arch.tar
 
 ## TODO 
+git clone https://github.com/lugvitc/lugfetch.git --depth 1
+cd lugfetch && sudo make install && lugfetch >/dev/null && cd -
 mkdir -p ~/.local/bin/
 mkdir -p ~/.config/neofetch/
-mkdir -p ~/.config/starship
+mkdir -p ~/.config/starship/
 ln -sf $(pwd)/../neofetch/neofetch ~/.local/bin/
 ln -sf $(pwd)/../neofetch/config.conf ~/.config/neofetch/
 ln -sf $(pwd)/../terminal/.bashrc ~/.lug-bashrc
 ln -sf $(pwd)/../terminal/starship.toml ~/.config/starship
+sudo ln -sf $(pwd)/../terminal/lugpkg /usr/local/bin/
 echo "[[ -f ~/.lug-bashrc ]] && source ~/.lug-bashrc " >> ~/.bashrc
 
 # echo >> themeInfo to ~/.config/gtk-3.0/settings.ini
@@ -126,3 +129,5 @@ gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrainsMonoNL N
 # MISC CLEANUP
 yay -S libadwaita-without-adwaita-git --noconfirm --needed
 yay -Rns $(yay -Qtdq) --noconfirm
+
+git clone https://github.com/lugvitc/LUGOS-nvim-config.git ~/.config/nvim
