@@ -8,27 +8,29 @@
 # cd -
 
 if [ "$(command -v apt)" ] && [ -f "/etc/debian_version" ]; then
-    if ! [ "$(command -v lolcat &>/dev/null)" ]; then
+    if ! command -v lolcat >/dev/null 2>&1; then
         echo "lolcat is not installed. Attempting to install..."
         sudo apt update
         sudo apt install -y lolcat
     fi
-  elif [ "$(command -v pacman)" ] && [ -f "/etc/arch-release" ]; then
-    if ! [ "$(command -v lolcat &>/dev/null)" ]; then
+elif [ "$(command -v pacman)" ] && [ -f "/etc/arch-release" ]; then
+    if ! command -v lolcat >/dev/null 2>&1; then
         echo "lolcat is not installed. Attempting to install..."
 		# Refreshing the repos for Arch Linux GUI
-		sudo pacman -Sy 
-        sudo pacman -S --noconfirm lolcat
+        sudo pacman -Sy --noconfirm lolcat
     fi
-# else
-    # Eat 5-star
-    # echo "Unsupported distribution. Kindly install lolcat and retry the installation."
-    # exit
+else
+    echo "Unsupported distribution. Kindly install lolcat and retry the installation."
+    exit
 fi
 
 
 echo "Welcome to our distro, LugOS. This distro post-install script sets up our configuration....."
 
 cat ./distroInstallerSplash | lolcat # /opt/lolcat/lolcat 
-sudo ./install-bedrock-x86_64 --hijack # this will eventually create a /bedrock/etc/bedrock.conf
-echo "Reboot the system at your convenience, then run the postSetup script."
+echo Fetching a script...
+curl -sSL https://github.com/bedrocklinux/bedrocklinux-userland/releases/download/0.7.29/bedrock-linux-0.7.29-x86_64.sh  > /var/tmp/install-bedrock
+chmod +x /var/tmp/install-bedrock
+echo 'Not reversible!' | sudo /var/tmp/install-bedrock --hijack
+# sudo ./install-bedrock-x86_64 --hijack # this will eventually create a /bedrock/etc/bedrock.conf
+echo -e "\033[0;32m* Reboot the system at your convenience, then run the postSetup script.\033[0m"
