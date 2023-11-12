@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 lolcat $(pwd)/distroInstallerSplash
 echo "Welcome to LugOS..." # insert content here
-
 # Your host distro will be installed as a strata by design, so one of the 2 lines below will error out; this is undesirable behaviour.
   
 if [ "$(command -v apt)" ] && [ -f "/etc/debian_version" ]; then
@@ -88,9 +87,21 @@ ln -sf $(pwd)/../terminal/starship.toml ~/.config/starship
 echo "[[ -f ~/.lug-bashrc ]] && source ~/.lug-bashrc " >> ~/.bashrc
 
 # echo >> themeInfo to ~/.config/gtk-3.0/settings.ini
-yay -S gruvbox-dark-gtk gruvbox-dark-icons-gtk --needed --noconfirm
-dconf write /org/gnome/desktop/interface/gtk-theme "'gruvbox-dark-gtk'"
-dconf write /org/gnome/desktop/interface/icon-theme "'gruvbox-dark-icons-gtk'"
+yay -S  gruvbox-plus-icon-theme-git --needed --noconfirm
+git clone https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme.git /tmp/gruvbox
+mkdir ~/.themes
+cp -r /tmp/gruvbox/themes/Gruvbox-Dark-B ~/.themes/
+dconf write /org/gnome/desktop/interface/gtk-theme "'Gruvbox-Dark-B'"
+dconf write /org/gnome/desktop/interface/icon-theme "'Gruvbox-Plus-Dark'"
+gsettings set org.gnome.shell.extensions.user-theme name "Gruvbox-Dark-B"
+# Cursor Theme
+yay -S bibata-cursor-theme
+gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Classic'
+# Fixes gtk-4.0 theming and adds Jetbrains Mono font
+yay -S  ttf-jetbrains-mono-git --noconfirm --needed
+# Sets Jetbrains Mono font for terminal
+gsettings set org.gnome.desktop.interface monospace-font-name 'Jetbrains Mono 10'
+
 
 mkdir -p /usr/share/grub/themes/
 if [ ! -d "/var/tmp/LUGOS-grub" ]; then
@@ -112,3 +123,4 @@ dconf write /org/gnome/shell/extensions/burn-my-windows/fire-enable-effect false
 dconf write /org/gnome/shell/extensions/burn-my-windows/tv-glitch-animation-time 650
 
 dconf write /org/gnome/shell/extensions/user-theme/enabled true
+yay -S libadwaita-without-adwaita-git --noconfirm --needed
