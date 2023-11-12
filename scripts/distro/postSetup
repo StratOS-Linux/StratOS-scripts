@@ -95,11 +95,13 @@ dconf write /org/gnome/desktop/interface/gtk-theme "'Gruvbox-Dark-B'"
 dconf write /org/gnome/desktop/interface/icon-theme "'Gruvbox-Plus-Dark'"
 gsettings set org.gnome.shell.extensions.user-theme name "Gruvbox-Dark-B"
 # Cursor Theme
-wget https://github.com/fu1e5/Bibata_Cursor/releases/download/v2.0.4/Bibata-Modern-Classic.tar.xz -P /tmp/
-tar -xf /tmp/Bibata-Modern-Classic.tar.xz -C ~/.icons
+yay -S bibata-cursor-theme
 gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Classic'
-# Fixes gtk-4.0 theming
-yay -S libadwaita-without-adwaita-git --noconfirm --needed
+# Fixes gtk-4.0 theming and adds Jetbrains Mono font
+yay -S  ttf-jetbrains-mono-git --noconfirm --needed
+# Sets Jetbrains Mono font for terminal
+gsettings set org.gnome.desktop.interface monospace-font-name 'Jetbrains Mono 10'
+
 
 mkdir -p /usr/share/grub/themes/
 if [ ! -d "/var/tmp/LUGOS-grub" ]; then
@@ -121,3 +123,4 @@ dconf write /org/gnome/shell/extensions/burn-my-windows/fire-enable-effect false
 dconf write /org/gnome/shell/extensions/burn-my-windows/tv-glitch-animation-time 650
 
 dconf write /org/gnome/shell/extensions/user-theme/enabled true
+yay -S libadwaita-without-adwaita-git --noconfirm --needed
