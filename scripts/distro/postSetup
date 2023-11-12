@@ -98,10 +98,17 @@ gsettings set org.gnome.shell.extensions.user-theme name "Gruvbox-Dark-B"
 yay -S bibata-cursor-theme
 gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Classic'
 # Fixes gtk-4.0 theming and adds Jetbrains Mono font
-yay -S  ttf-jetbrains-mono-git --noconfirm --needed
+yay -S  ttf-jetbrains-mono-nerd --noconfirm --needed
 # Sets Jetbrains Mono font for terminal
 gsettings set org.gnome.desktop.interface monospace-font-name 'Jetbrains Mono 10'
-
+# Set up lugvim
+sudo pacman -S neovim nodejs npm --noconfirm --needed
+git clone https://github.com/lugvitc/LUGOS-nvim-config.git ~/.config/nvim
+# Set up lugfetch
+git clone https://github.com/lugvitc/lugfetch.git /tmp/lugfetch
+make -C /tmp/lugfetch
+sudo make install -C /tmp/lugfetch
+lugfetch
 
 mkdir -p /usr/share/grub/themes/
 if [ ! -d "/var/tmp/LUGOS-grub" ]; then
