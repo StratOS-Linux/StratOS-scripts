@@ -225,9 +225,9 @@ if [[ -n $UPDATE ]]; then
     fi
     if command -v flatpak &> /dev/null; then
         if [[ -n $PROMPTLESS ]]; then
-            flatpak update -y
+            flatpak --user update -y
         else
-            flatpak update
+            flatpak --user update
         fi
     fi
     if command -v snap &> /dev/null; then
@@ -260,9 +260,9 @@ if [[ -n $CLEANUP ]]; then
     fi
     if command -v flatpak &> /dev/null; then
         if [[ -n $PROMPTLESS ]]; then
-            flatpak repair && flatpak uninstall --unused -y
+            flatpak --user repair && flatpak --user uninstall --unused -y
         else
-            flatpak repair && flatpak uninstall --unused
+            flatpak --user repair && flatpak --user uninstall --unused
         fi
     fi
     if command -v snap &> /dev/null; then
@@ -357,22 +357,30 @@ if [[ -n $INSTALL ]]; then
     flatpak_cmd="install"
     snap_cmd="install"
     apt_cmd="install"
+	pacman_cmd="-S"
     yay_cmd="-S"
     prompt $"Select which package to install" "$count"
 elif [[ -n $REMOVE ]]; then
     flatpak_cmd="remove"
     snap_cmd="remove"
     apt_cmd="remove"
+	pacman_cmd="-S"
     yay_cmd="-Rns"
     prompt $"Select which package to remove" "$count"
 fi
 
 read -ra entered_input
 echo -ne "${NC}"
-if [[ ! ${entered_input[*]} =~ ^(([0-9])\s?)+ ]]; then
+if [[ ${entered_input[*]} =~ ^[Qq]$|quit$ ]]; then
+	msg "Exiting"
+	exit 1
+fi
+if [[ ! ${entered_input[*]} =~ ^[0-9]+(\s[0-9]+)*$ ]]; then
     msg $"'${entered_input[*]}' is not a valid number"
     exit 1
 fi
+
+
 
 for i in "${entered_input[@]}"; do
     msg $"Selecting '${BPurple}${pkgs[i]}${NC}' from package manager '${BPurple}${pkgrepo[i]}${NC}'"
@@ -404,7 +412,7 @@ for i in "${entered_input[@]}"; do
 			ret=$?
 			;;
         yay)
-            yay "${yay_cmd}"
+            yay "${yay_cmd}" "${pkgs[i]}"
             ret=$?
             ;;
         snap)
