@@ -55,7 +55,7 @@ echo "Setting up the AUR helper..."
 echo 
 ../terminal/setup-yay  > /dev/null
 # add paru=yay=pacman thru (fish) shell aliases
-yay -S starship sassc gnome-shell-extension-extension-list xorg-xrandr --needed --noconfirm # neofetch not required
+yay -S tar unzip starship sassc gnome-shell-extension-extension-list xorg-xrandr --needed --noconfirm # neofetch not required
 
 # Pentesting tools/packages
 echo "Installing penetration testing utilities..."
