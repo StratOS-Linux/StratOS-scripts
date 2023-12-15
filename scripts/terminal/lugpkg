@@ -101,7 +101,7 @@ function clearscr() {
 
 
 function search_yay() {
-    local contents=("$(yay -Ssa --topdown "$*" | awk -F/ '/^[^ ]/ {print $2}' | awk '{print $1}' | rg "$*" | uniq)")
+    local contents=("$(yay -Ssa --topdown "$*" | awk -F/ '/^[^ ]/ {print $2}' | awk '{print $1}' | grep -i "$*" | uniq)")
         if [[ -n $contents ]]; then
         echo -e "${contents[@]}"
     else
@@ -158,19 +158,19 @@ function search_snap() {
 }
 
 case "${1}" in
-    search)
+    s | search)
         SEARCH=true
         shift
         ;;
-    install)
+    i | in | install)
         INSTALL=true
         shift
         ;;
-    remove)
+    r | rm | remove)
         REMOVE=true
         shift
         ;;
-    cleanup)
+    c | cl | clean | cleanup)
         CLEANUP=true
         shift
         if [[ $1 == "-y" ]]; then
@@ -178,7 +178,7 @@ case "${1}" in
             shift
         fi
         ;;
-    update)
+    u | up | update)
         UPDATE=true
         shift
         if [[ $1 == "-y" ]]; then
@@ -186,7 +186,7 @@ case "${1}" in
             shift
         fi
         ;;
-    -h | --help)
+    h | help | -h | --help)
         echo -e "$help_flag"
         exit 0
         ;;

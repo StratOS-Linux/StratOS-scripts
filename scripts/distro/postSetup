@@ -55,7 +55,7 @@ echo "Setting up the AUR helper..."
 echo 
 ../terminal/setup-yay  > /dev/null
 # add paru=yay=pacman thru (fish) shell aliases
-yay -S tar unzip starship sassc gnome-shell-extension-extension-list xorg-xrandr --needed --noconfirm # neofetch not required
+yay -S tar unzip starship sassc gnome-shell-extension-extension-list xorg-xrandr --needed --noconfirm
 
 # Pentesting tools/packages
 echo "Installing penetration testing utilities..."
@@ -72,18 +72,24 @@ pipx install maxphisher > /dev/null # more feature-complete, made by the same au
 # sudo tar cf arch.tar root.x86_64/
 # sudo brl import arch arch.tar
 
-## TODO 
+
+# Add lugOS repo
+echo "[lugos]" | sudo tee -a /etc/pacman.conf
+echo "SigLevel = Optional TrustAll" | sudo tee -a /etc/pacman.conf
+echo "Server = https://lugvitc.org/LUGOS-repo/$repo/os/x86_64" | sudo tee -a /etc/pacman.conf
+
+
 git clone https://github.com/lugvitc/lugfetch.git --depth 1
-cd lugfetch && sudo make install && lugfetch >/dev/null && cd -
+cd lugfetch && sudo make install && cd -/LUG_custom_distro/scripts/distro
 mkdir -p ~/.local/bin/
-mkdir -p ~/.config/neofetch/
+# mkdir -p ~/.config/neofetch/
 mkdir -p ~/.config/starship/
-ln -sf $(pwd)/../neofetch/neofetch ~/.local/bin/
-ln -sf $(pwd)/../neofetch/config.conf ~/.config/neofetch/
+# ln -sf $(pwd)/../neofetch/neofetch ~/.local/bin/
+# ln -sf $(pwd)/../neofetch/config.conf ~/.config/neofetch/
 ln -sf $(pwd)/../terminal/.bashrc ~/.lug-bashrc
-ln -sf $(pwd)/../terminal/starship.toml ~/.config/starship
+ln -sf $(pwd)/../terminal/starship.toml ~/.config/
 sudo ln -sf $(pwd)/../terminal/lugpkg /usr/local/bin/
-echo "[[ -f ~/.lug-bashrc ]] && source ~/.lug-bashrc " >> ~/.bashrc
+echo "[[ -f ~/.lug-bashrc ]] && source ~/.lug-bashrc " | sudo tee -a ~/.bashrc
 
 # echo >> themeInfo to ~/.config/gtk-3.0/settings.ini
 yay -S  gruvbox-plus-icon-theme-git --needed --noconfirm
@@ -123,6 +129,8 @@ dconf write /org/gnome/desktop/background/picture-uri-dark "'file://$HOME/LUG_cu
 dconf write /org/gnome/desktop/background/picture-uri "'file://$HOME/LUG_custom_distro/LUG-wallpaper-l.png'"
 dconf write /org/gnome/shell/extensions/user-theme/enabled true
 
+# Start the fun
+gsettings set org.gnome.shell disable-user-extensions false
 
 # MISC CLEANUP
 yay -S libadwaita-without-adwaita-git --noconfirm --needed
