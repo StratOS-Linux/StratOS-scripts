@@ -13,7 +13,7 @@ if [[ -z $NO_COLOR ]]; then
     BPurple='\033[1;35m'   # Purple
     BCyan='\033[1;36m'     # Cyan
     BWhite='\033[1;37m'    # White
-	BOrange='\033[1;38;5;208m'
+    BOrange='\033[1;38;5;208m'
     NC='\033[0m'           # No Color
 fi
 
@@ -87,31 +87,47 @@ Developed by ZeStig <o0vckutt@duck.com> for lugOS."
 function msg() {
     local input="$*"
     echo -e "$input"
- }
+}
 
 function prompt() {
     local input="$1"
     local index="$2"
     echo -ne "$input [0-$index]: ${BWhite}"
- }
+}
 
 function clearscr() {
     tput cuu 1 && tput el
- }
+}
 
 
 function search_yay() {
-    local contents=("$(yay -Ssa --topdown "$*" | awk -F/ '/^[^ ]/ {print $2}' | awk '{print $1}' | grep -i "$*" | uniq)")
-        if [[ -n $contents ]]; then
-        echo -e "${contents[@]}"
+    local search_term="$*"
+    local installed_packages=()
+
+    # Get the list of packages from yay
+    local contents=("$(yay -Ssa --topdown "$search_term" | awk -F/ '/^[^ ]/ {print $2}' | awk '{print $1}' | grep -i "$search_term" | uniq)")
+
+    # Check if each package is installed and add to the installed_packages array
+    for package in $contents; do
+        if yay -Qi "$package" &>/dev/null; then
+            installed_packages+=("${BWhite}$package${NC}")
+        else
+            installed_packages+=("$package")
+        fi
+    done
+
+    # Print the modified list
+    if [[ -n $installed_packages ]]; then
+        echo -e "${installed_packages[@]}"
     else
         return 1
     fi
 }
 
+
 function search_pacman() {
     local contents=("$(pacman -Ss "$*" | awk -F/ '/^[^ ]/ {print $2}' | awk '{print $1}')")
-        if [[ -n $contents ]]; then
+    if [[ -n $contents ]]; then
         echo -e "${contents[@]}"
     else
         return 1
@@ -132,17 +148,33 @@ function search_apt() {
 }
 
 function search_flatpak() {
+    local search_term="$*"
+    local installed_packages=()
+
+    # Get the list of packages from flatpak
     if [[ -z $DESCRIPTION ]]; then
-        local contents=("$(flatpak search --columns="application" "$*" | grep -i --color=never "$*")")
+        local contents=("$(flatpak search --columns='application' "$search_term" | grep -i --color=never "$search_term")")
     else
-        local contents=("$(flatpak search --columns="application" "$*")")
+        local contents=("$(flatpak search --columns='application' "$search_term")")
     fi
-    if [[ ${contents[*]} == "No matches found" ]]; then
+
+    # Check if each package is installed and add to the installed_packages array
+    for package in $contents; do
+        if flatpak list | grep -q "$package"; then
+            installed_packages+=("${BWhite}$package${NC}")
+        else
+            installed_packages+=("$package")
+        fi
+    done
+
+    # Print the modified list
+    if [[ ${installed_packages[*]} == "No matches found" ]]; then
         return 1
     else
-        echo -e "${contents[@]}"
+        echo -e "${installed_packages[@]}"
     fi
 }
+
 
 function search_snap() {
     if [[ -z $DESCRIPTION ]]; then
@@ -156,6 +188,81 @@ function search_snap() {
         echo -e "${contents[@]}"
     fi
 }
+
+function get_installed_sources() {
+    local package_name="$1"
+    local sources=()
+
+    # Check if the package is installed using yay
+    if yay -Qi "$package_name" &>/dev/null; then
+        # Check if the Packager is "UnknownPackager" to determine AUR
+        if yay -Qi "$package_name" | grep -i "Packager" | awk '{print $3 $4}' | grep -q "UnknownPackager"; then
+            sources+=("AUR")
+        elif ! pacman -Qi "$package_name" | grep -i "Packager" | awk '{print $3 $4}' | grep -q "UnknownPackager"; then
+            sources+=("pacman")
+        fi
+    fi
+
+    # Check if the package is installed using flatpak
+    if flatpak list | grep -q "$package_name"; then
+        sources+=("flatpak")
+    fi
+
+    # Check if the package is installed using apt
+    if apt list --installed 2>/dev/null | grep -q "^$package_name/"; then
+        sources+=("apt")
+    fi
+
+    # Check if the package is installed using snap
+    if snap list "$package_name" &>/dev/null; then
+        sources+=("snap")
+    fi
+
+    echo "${sources[@]}"
+}
+
+
+function display_installed_sources() {
+    local package_name="$1"
+    local sources=($(get_installed_sources "$package_name"))
+
+    if [ ${#sources[@]} -eq 0 ]; then
+        echo "Package '$package_name' is not installed."
+        exit 1
+    fi
+
+    echo -e "Package '${BWhite}${BPurple}$package_name${NC}' is installed using the following package managers:"  # Bold white color for installed packages
+
+    for source in "${sources[@]}"; do
+        case "$source" in
+            "AUR"|"yay")
+                if yay -Qi "$package_name" | grep -i "Packager" | awk '{print $3 $4}' | grep -q "UnknownPackager"; then
+                    echo -e "[${BYellow}y${NC}]: ${BWhite}$(yay -Qi $package_name | head -n 1 | awk '{printf $3}') (${BYellow}yay${NC})"
+                fi
+                ;;
+            
+            "pacman")
+                if ! yay -Qi "$package_name" | grep -i "Packager" | awk '{print $3 $4}' | grep -q "UnknownPackager"; then
+                    echo -e "[${BOrange}p${NC}]: ${BWhite}$(pacman -Qi $package_name | head -n 1 | awk '{printf $3}') (${BOrange}pacman${NC})"
+                fi
+                ;;
+            
+            "snap")
+                snap_name=$(snap list "$package_name" | awk '{print $1}' | tail -n 1)
+                echo -e "[${BRed}s${NC}]: ${BWhite}$package_name (${BRed}snap${NC})"
+                ;;
+            
+            "flatpak")
+                echo -e "[${BCyan}f${NC}]: ${BWhite}$(flatpak list --app --columns=application,ref | grep -i $package_name | awk '{print $1}') (${BCyan}flatpak${NC})"
+                ;;
+            
+            "apt")
+                echo -e "[${BGreen}a${NC}]: ${BWhite}$package_name (${BGreen}apt${NC})"
+                ;;
+        esac
+    done
+}
+
 
 case "${1}" in
     s | search)
@@ -276,39 +383,41 @@ fi
 # Lowercase the rest of input
 set -- "${*,,}"
 
-if command -v yay &> /dev/null; then
-    msg $"Searching AUR…"
-    yay_search_list=($(search_yay $*))
-    clearscr
-fi
-if command -v pacman &> /dev/null; then
-    msg $"Searching pacman…"
-    pacman_search_list=($(search_pacman $*))
-    clearscr
-fi
-if command -v apt &> /dev/null; then
-    msg $"Searching apt…"
-    apt_search_list=($(search_apt $*))
-    clearscr
-fi
-if command -v flatpak &> /dev/null; then
-    msg $"Searching flatpak…"
-    flatpak_search_list=($(search_flatpak $*))
-    clearscr
-fi
-if command -v snap &> /dev/null; then
-    msg $"Searching snap…"
-    snap_search_list=($(search_snap $*))
-    clearscr
+if [[ -z $REMOVE ]]; then
+    if command -v yay &> /dev/null; then
+	msg $"Searching AUR…"
+	yay_search_list=($(search_yay $*))
+	clearscr
+    fi
+    if command -v pacman &> /dev/null; then
+	msg $"Searching pacman…"
+	pacman_search_list=($(search_pacman $*))
+	clearscr
+    fi
+    if command -v apt &> /dev/null; then
+	msg $"Searching apt…"
+	apt_search_list=($(search_apt $*))
+	clearscr
+    fi
+    if command -v flatpak &> /dev/null; then
+	msg $"Searching flatpak…"
+	flatpak_search_list=($(search_flatpak $*))
+	clearscr
+    fi
+    if command -v snap &> /dev/null; then
+	msg $"Searching snap…"
+	snap_search_list=($(search_snap $*))
+	clearscr
+    fi
+
+    if [[ ${#pacman_search_list} -eq 0 && ${#yay_search_list} -eq 0 && ${#apt_search_list} -eq 0 && ${#flatpak_search_list} -eq 0 && ${#snap_search_list} -eq 0 ]]; then
+	msg $"No packages found matching '$*'!"
+	exit 1
+    fi
 fi
 
-if [[ ${#yay_search_list} -eq 0 && ${#apt_search_list} -eq 0 && ${#flatpak_search_list} -eq 0 && ${#snap_search_list} -eq 0 ]]; then
-    msg $"No packages found matching '$*'!"
-    exit 1
-fi
-
-msg $"Found packages matching '${BPurple}$*${NC}':"
-echo
+# msg $"Found packages matching '${BPurple}$*${NC}':"
+# echo
 
 count=0
 pkgs=()
@@ -350,37 +459,64 @@ done
 if [[ -n $SEARCH ]]; then
     exit 0
 fi
-
-echo
+NC='\033[0m'
+# echo
 
 if [[ -n $INSTALL ]]; then
     flatpak_cmd="install"
     snap_cmd="install"
     apt_cmd="install"
-	pacman_cmd="-S"
+    pacman_cmd="-S"
     yay_cmd="-S"
     prompt $"Select which package to install" "$count"
-elif [[ -n $REMOVE ]]; then
-    flatpak_cmd="remove"
-    snap_cmd="remove"
-    apt_cmd="remove"
-	pacman_cmd="-S"
-    yay_cmd="-Rns"
-    prompt $"Select which package to remove" "$count"
-fi
 
+elif [[ -n $REMOVE ]]; then
+    if [[ -n $* ]]; then
+	for package_name in $*; do
+	    display_installed_sources "$package_name"
+	    echo -ne "Select which package to remove [${BOrange}p${NC}/${BCyan}f${NC}/${BYellow}y${NC}]: ${BWhite}"
+	    read -r selected_source
+
+            case "$selected_source" in
+		"p")
+                    # Remove the Pacman package
+                    sudo pacman -Rns "$package_name" --noconfirm
+                    ;;
+		"f")
+                    # Remove the Flatpak package
+                    flatpak uninstall "$package_name" -y
+                    ;;
+		"y")
+                    # Remove the AUR package
+                    yay -Rns "$package_name" --noconfirm
+                    ;;
+		"")
+                    echo "Invalid input. Exiting."
+                    exit 1
+                    ;;
+		*)
+                    echo "Invalid selection. Exiting."
+                    exit 1
+                    ;;
+            esac
+	done
+    else
+	echo "Please provide at least one package name to remove."
+	exit 1
+    fi
+
+  exit 0
+fi
 read -ra entered_input
 echo -ne "${NC}"
 if [[ ${entered_input[*]} =~ ^[Qq]$|quit$ ]]; then
-	msg "Exiting"
-	exit 1
+    msg "Exiting"
+    exit 1
 fi
 if [[ ! ${entered_input[*]} =~ ^[0-9]+(\s[0-9]+)*$ ]]; then
     msg $"'${entered_input[*]}' is not a valid number"
     exit 1
 fi
-
-
 
 for i in "${entered_input[@]}"; do
     msg $"Selecting '${BPurple}${pkgs[i]}${NC}' from package manager '${BPurple}${pkgrepo[i]}${NC}'"
@@ -407,10 +543,10 @@ for i in "${entered_input[@]}"; do
             sudo apt "${apt_cmd}" "${pkgs[i]}" -y
             ret=$?
             ;;
-		pacman) 
-			sudo pacman "${pacman_cmd} "${pkgs[i]}""
-			ret=$?
-			;;
+	pacman) 
+	    sudo pacman "${pacman_cmd} "${pkgs[i]}""
+	    ret=$?
+	    ;;
         yay)
             yay "${yay_cmd}" "${pkgs[i]}"
             ret=$?
