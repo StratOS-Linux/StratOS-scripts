@@ -115,7 +115,7 @@ function info_package() {
     for source in "${sources[@]}"; do
         case "$source" in
             "AUR"|"yay")
-                if yay -Qi "$package_name" | grep -i "Packager" | awk '{print $3 $4}' | grep -q "UnknownPackager"; then
+		if [[ $(yay -Qi "$package_name" | grep -i "Validated" | awk '{print $4}') == "None" ]]; then
                     echo -e "[${BYellow}y${NC}]: ${BWhite}$(yay -Qi $package_name | head -n 1 | awk '{printf $3}') (${BYellow}yay${NC})"
 		    echo 
 		    yay -Qi "$package_name"
@@ -123,7 +123,7 @@ function info_package() {
                 ;;
             
             "pacman")
-                if ! yay -Qi "$package_name" | grep -i "Packager" | awk '{print $3 $4}' | grep -q "UnknownPackager"; then
+		if [[ $(yay -Qi "$package_name" | grep -i "Validated" | awk '{print $4}') != "None" ]]; then
                     echo -e "[${BOrange}p${NC}]: ${BWhite}$(pacman -Qi $package_name | head -n 1 | awk '{printf $3}') (${BOrange}pacman${NC})"
 		    echo 
 		    pacman -Qi "$package_name"
@@ -174,9 +174,21 @@ function search_yay() {
 
 
 function search_pacman() {
-    local contents=("$(pacman -Ss "$*" | awk -F/ '/^[^ ]/ {print $2}' | awk '{print $1}')")
-    if [[ -n $contents ]]; then
-        echo -e "${contents[@]}"
+    local search_term="$*"
+    local installed_packages=()
+    local contents=("$(pacman -Ss "$search_term" | awk -F/ '/^[^ ]/ {print $2}' | awk '{print $1}')")
+    # Check if each package is installed and add to the installed_packages array
+    for package in $contents; do
+        if yay -Qi "$package" &>/dev/null; then
+            installed_packages+=("${BWhite}$package${NC}")
+        else
+            installed_packages+=("$package")
+        fi
+    done
+
+    # Print the modified list
+    if [[ -n $installed_packages ]]; then
+        echo -e "${installed_packages[@]}"
     else
         return 1
     fi
@@ -620,7 +632,7 @@ for i in "${entered_input[@]}"; do
             ;;
     esac
     if [[ $ret -ne 0 ]]; then
-        msg $"Error while installing '${BPurple}${pkgs[i]}${NC}' from package manager '${BPurple}${pkgrepo[i]}${NC}'"
+        msg $"\nError while installing '${BPurple}${pkgs[i]}${NC}' from package manager '${BPurple}${pkgrepo[i]}${NC}'"
         exit 1
     fi
 done
