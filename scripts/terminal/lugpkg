@@ -1,4 +1,4 @@
-#!/bin/bash
+h
 
 tabs -4
 
@@ -595,7 +595,7 @@ case "${sure}" in
         exit 1
         ;;
 esac
-
+export NO_COLOUR=true
 for i in "${entered_input[@]}"; do
     case "${pkgrepo[i]}" in
         flatpak)
@@ -607,7 +607,7 @@ for i in "${entered_input[@]}"; do
             ret=$?
             ;;
 	pacman) 
-	    sudo pacman "${pacman_cmd} "${pkgs[i]}""
+	    sudo pacman "${pacman_cmd}" "${pkgs[i]}"
 	    ret=$?
 	    ;;
         yay)
@@ -620,7 +620,7 @@ for i in "${entered_input[@]}"; do
             ;;
     esac
     if [[ $ret -ne 0 ]]; then
-        msg $"Error: '${BPurple}${pkgs[i]}${NC}' from package manager '${BPurple}${pkgrepo[i]}${NC}'"
+        msg $"Error while installing '${BPurple}${pkgs[i]}${NC}' from package manager '${BPurple}${pkgrepo[i]}${NC}'"
         exit 1
     fi
 done
